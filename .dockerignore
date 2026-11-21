@@ -1,0 +1,7 @@
+node_modules
+dist
+.astro
+.git
+.superpowers
+.taste-skill
+*.log
