@@ -1,0 +1,142 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PortalCard from "../components/PortalCard.astro";
+import { loadAllPortals } from "../lib/portals.ts";
+import { CATEGORIES, CATEGORY_LABEL_MAP } from "../lib/categories.ts";
+import { SITE_CONFIG, buildSuggestUrl } from "../lib/site.ts";
+
+const portals = await loadAllPortals();
+const suggestUrl = buildSuggestUrl();
+
+const searchIndex = portals.map((portal) => ({
+  slug: portal.slug,
+  title: portal.title,
+  agency: portal.agency,
+  agencyShort: portal.agencyShort,
+  category: portal.category,
+  coverage: portal.coverage,
+  cityName: portal.cityName,
+  summary: portal.summary,
+  aliases: portal.aliases,
+  popular: portal.popular,
+}));
+---
+
+<BaseLayout title={SITE_CONFIG.name} description={SITE_CONFIG.tagline} currentPath="/">
+  <section class="hero">
+    <h1 id="main-heading" tabindex="-1">Find the legit Philippine government portal.</h1>
+    <p class="hero-sub">
+      Search by task in English or Tagalog—direct links verified against official agencies, with
+      scam warnings where they matter.
+    </p>
+  </section>
+
+  <search aria-label="Filter Philippine government portals">
+    <div class="search-panel">
+      <form id="directory-search-form" class="search-form" action="/" method="get">
+        <label for="portal-search" class="visually-hidden">
+          Search services, agencies, or cities (English or Tagalog)
+        </label>
+        <span class="search-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+        </span>
+        <input
+          id="portal-search"
+          name="q"
+          type="search"
+          class="search-input"
+          placeholder="Try &quot;NBI clearance&quot;, &quot;pasaporte&quot;, &quot;lisensya&quot;, &quot;SSS&quot;, or &quot;Quezon City&quot;..."
+          aria-describedby="search-hint"
+          autocomplete="off"
+          enterkeyhint="search"
+        />
+        <button
+          id="search-clear"
+          type="button"
+          class="search-clear"
+          aria-label="Clear search query"
+          hidden
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      </form>
+
+      <p id="search-hint" class="search-hint">
+        Matches English &amp; Tagalog terms (e.g. kuha ng NBI, hulog sa SSS, birth certificate, ORUS).
+      </p>
+
+      <div class="filter-controls">
+        <div class="coverage-row">
+          <div class="segmented" role="group" aria-label="Coverage filter">
+            <button type="button" data-coverage-filter="all" aria-pressed="true">All</button>
+            <button type="button" data-coverage-filter="nationwide" aria-pressed="false">
+              Nationwide
+            </button>
+            <button type="button" data-coverage-filter="city" aria-pressed="false">
+              Major Cities
+            </button>
+          </div>
+
+          <p id="results-count" class="results-summary tabular-nums">
+            Showing all {portals.length} verified portals
+          </p>
+          <p id="results-announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
+        </div>
+
+        <div class="category-rail-wrap">
+          <div class="category-rail" role="group" aria-label="Category filter">
+            <button type="button" class="chip" data-category-filter="all" aria-pressed="true">
+              All Categories
+            </button>
+            {CATEGORIES.map((category) => (
+              <button
+                type="button"
+                class="chip"
+                data-category-filter={category.id}
+                aria-pressed="false"
+              >
+                {category.shortLabel}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </search>
+
+  <ul id="portal-grid" class="portal-grid" role="list">
+    {portals.map((portal) => (
+      <PortalCard portal={portal} categoryLabel={CATEGORY_LABEL_MAP[portal.category]} />
+    ))}
+  </ul>
+
+  <section id="empty-state" class="empty-state" hidden aria-labelledby="empty-heading">
+    <h2 id="empty-heading">No matching portals found</h2>
+    <p>
+      Try a broader word like &ldquo;clearance&rdquo;, &ldquo;passport&rdquo;, or &ldquo;tax&rdquo;,
+      reset your filters, or suggest a missing official portal.
+    </p>
+    <div class="empty-actions">
+      <button id="reset-filters" type="button" class="btn btn-primary">Reset all filters</button>
+      <a href={suggestUrl} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+        Suggest a portal
+      </a>
+    </div>
+  </section>
+
+  <script
+    id="portal-search-index"
+    type="application/json"
+    is:inline
+    set:html={JSON.stringify(searchIndex).replace(/</g, "\\u003c")}
+  />
+  <script>
+    import "../scripts/directory-filter.ts";
+  </script>
+</BaseLayout>

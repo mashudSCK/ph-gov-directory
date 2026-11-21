@@ -1,12 +1,8 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { PortalEntrySchema, type PortalEntry } from "./schema.ts";
 
-const DEFAULT_DATA_DIR = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../data/portals"
-);
+const DEFAULT_DATA_DIR = path.resolve(process.cwd(), "src/data/portals");
 
 export function validatePortalList(rawEntries: readonly unknown[]): PortalEntry[] {
   const seenSlugs = new Set<string>();

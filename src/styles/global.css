@@ -731,11 +731,28 @@ main {
   gap: 0.65rem;
 }
 
+.destination-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
 .destination-url {
   font-family: var(--font-mono);
   font-size: 0.9rem;
   color: var(--ink);
   word-break: break-all;
+}
+
+.sublinks-heading {
+  font-size: 1.05rem;
+}
+
+.sublink-host {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
 }
 
 .callout {

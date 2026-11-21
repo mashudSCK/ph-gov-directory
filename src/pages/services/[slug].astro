@@ -1,0 +1,160 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import TrustBadge from "../../components/TrustBadge.astro";
+import { loadAllPortals, getHostname } from "../../lib/portals.ts";
+import { CATEGORY_LABEL_MAP } from "../../lib/categories.ts";
+import { buildReportUrl } from "../../lib/site.ts";
+import type { PortalEntry, SubLinkKind } from "../../lib/schema.ts";
+
+export async function getStaticPaths() {
+  const portals = await loadAllPortals();
+  return portals.map((portal) => ({
+    params: { slug: portal.slug },
+    props: { portal },
+  }));
+}
+
+interface Props {
+  portal: PortalEntry;
+}
+
+const { portal } = Astro.props;
+const host = getHostname(portal.primaryUrl);
+const verificationHost = getHostname(portal.verificationSourceUrl);
+const reportUrl = buildReportUrl(portal);
+const categoryLabel = CATEGORY_LABEL_MAP[portal.category];
+
+const subLinkLabels: Record<SubLinkKind, string> = {
+  appointment: "Appointment / Portal",
+  verification: "Verification",
+  payment: "Filing / Payment",
+  guide: "Official Guide",
+  homepage: "Agency Homepage",
+};
+
+const transactionLabels: Record<PortalEntry["onlineTransaction"], string> = {
+  full: "Full online transaction",
+  partial: "Online booking + in-person step",
+  "info-only": "Official forms & guidance",
+};
+---
+
+<BaseLayout
+  title={`${portal.title} — Official Portal`}
+  description={`${portal.summary} Verified destination: ${host}.`}
+  currentPath={`/services/${portal.slug}/`}
+>
+  <a href="/" class="back-link" data-back-to-directory>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+    <span>Back to directory</span>
+  </a>
+
+  <article class="detail-card">
+    <header class="detail-header">
+      <div class="card-meta-row">
+        <div class="card-badges">
+          <TrustBadge tier={portal.trustTier} />
+          <span class="mini-flag">{categoryLabel}</span>
+          {portal.coverage === "city" && portal.cityName ? (
+            <span class="city-pill">{portal.cityName}</span>
+          ) : (
+            <span class="mini-flag">Nationwide</span>
+          )}
+        </div>
+      </div>
+
+      <h1 id="main-heading" tabindex="-1">{portal.title}</h1>
+      <p class="detail-agency">{portal.agency}</p>
+      <p>{portal.summary}</p>
+
+      <div class="card-flags">
+        <span class="mini-flag">{transactionLabels[portal.onlineTransaction]}</span>
+        {portal.requiresAppointment && <span class="mini-flag">Appointment required</span>}
+      </div>
+    </header>
+
+    <section class="destination-box" aria-labelledby="destination-heading">
+      <div>
+        <h2 id="destination-heading" class="destination-label">
+          Verified destination URL
+        </h2>
+        <p class="destination-url">{portal.primaryUrl}</p>
+      </div>
+      <a
+        href={portal.primaryUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-primary"
+      >
+        <span>{portal.primaryActionLabel}</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 3h6v6" />
+          <path d="M10 14 21 3" />
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+        </svg>
+      </a>
+    </section>
+
+    {portal.scamWarning && (
+      <section class="callout callout--warn" aria-labelledby="scam-heading">
+        <h2 id="scam-heading">Watch out for scams &amp; fixers</h2>
+        <p>{portal.scamWarning}</p>
+      </section>
+    )}
+
+    <section class="callout callout--verified" aria-labelledby="verification-heading">
+      <h2 id="verification-heading">Why this link is verified</h2>
+      <p>{portal.verificationNote}</p>
+      <p>
+        Official reference:{" "}
+        <a href={portal.verificationSourceUrl} target="_blank" rel="noopener noreferrer">
+          {verificationHost}
+        </a>
+        {" · "}
+        Last checked:{" "}
+        <time class="tabular-nums" datetime={portal.lastVerified}>{portal.lastVerified}</time>
+      </p>
+    </section>
+
+    {portal.subLinks.length > 0 && (
+      <section aria-labelledby="sublinks-heading">
+        <h2 id="sublinks-heading" class="sublinks-heading">Related official links</h2>
+        <ul class="sublinks-list" role="list">
+          {portal.subLinks.map((sub) => (
+            <li>
+              <a href={sub.url} target="_blank" rel="noopener noreferrer">
+                <span>
+                  {sub.label}
+                  <span class="sublink-host">{getHostname(sub.url)}</span>
+                </span>
+                <span class="sublink-kind">{subLinkLabels[sub.kind]}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <div class="detail-footer-actions">
+      <span>Domain host: <code>{host}</code></span>
+      <a href={reportUrl} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+        Report broken or changed link
+      </a>
+    </div>
+  </article>
+
+  <script is:inline>
+    (() => {
+      const backLink = document.querySelector("[data-back-to-directory]");
+      if (!(backLink instanceof HTMLAnchorElement)) return;
+      try {
+        const lastQuery = window.sessionStorage.getItem("govdir:last-query");
+        if (lastQuery && lastQuery.startsWith("?")) {
+          backLink.href = "/" + lastQuery;
+        }
+      } catch {}
+    })();
+  </script>
+</BaseLayout>

@@ -1,0 +1,75 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import TrustBadge from "../components/TrustBadge.astro";
+import { SITE_CONFIG, buildSuggestUrl } from "../lib/site.ts";
+
+const suggestUrl = buildSuggestUrl();
+---
+
+<BaseLayout
+  title="How We Verify Links"
+  description="How GovDir PH verifies official Philippine government domains, non-.gov.ph portals, and authorized partners."
+  currentPath="/trust/"
+>
+  <a href="/" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+    <span>Back to directory</span>
+  </a>
+
+  <article class="detail-card">
+    <header class="detail-header">
+      <h1 id="main-heading" tabindex="-1">How we verify Philippine government portals</h1>
+      <p>
+        Finding a legitimate Philippine government website is tricky because real services do not
+        always use obvious <code>.gov.ph</code> domains. Every listing in {SITE_CONFIG.name} shows
+        its destination domain up front and links back to an official agency source.
+      </p>
+    </header>
+
+    <section class="prose-section">
+      <h2>Our three trust labels</h2>
+      <ul>
+        <li>
+          <TrustBadge tier="official-gov-ph" /> — Hosted directly on an official Philippine
+          government <code>.gov.ph</code> domain (for example <code>clearance.nbi.gov.ph</code> or{" "}
+          <code>portal.lto.gov.ph</code>).
+        </li>
+        <li>
+          <TrustBadge tier="official-non-gov-domain" /> — Operated by a government agency on a
+          non-<code>.gov.ph</code> domain (for example <code>pnpclearance.ph</code> or{" "}
+          <code>pagibigfundservices.com</code>), confirmed directly via the agency&apos;s official
+          website or Citizen&apos;s Charter.
+        </li>
+        <li>
+          <TrustBadge tier="official-partner" /> — Explicitly authorized third-party partner (for
+          example <code>psahelpline.ph</code>) that may include courier or convenience fees. We
+          always note when a direct government option exists.
+        </li>
+      </ul>
+    </section>
+
+    <section class="prose-section">
+      <h2>Quick safety checklist before paying or entering IDs</h2>
+      <ul>
+        <li>Check the exact hostname in your browser&apos;s address bar before logging in.</li>
+        <li>
+          Free government forms (like eTravel, TIN registration on ORUS, or PSA/DFA slot booking
+          pages) never ask for payment via personal GCash or Messenger accounts.
+        </li>
+        <li>Never share your My.SSS, LERIS, or LTMS password or OTP with online &ldquo;assistants&rdquo;.</li>
+      </ul>
+    </section>
+
+    <section class="prose-section">
+      <h2>Independent directory disclaimer</h2>
+      <p>{SITE_CONFIG.disclaimer}</p>
+      <div>
+        <a href={suggestUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+          Suggest a portal or fix
+        </a>
+      </div>
+    </section>
+  </article>
+</BaseLayout>
