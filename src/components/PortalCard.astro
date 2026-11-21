@@ -1,0 +1,77 @@
+---
+import type { PortalEntry } from "../lib/schema.ts";
+import { getHostname } from "../lib/portals.ts";
+import TrustBadge from "./TrustBadge.astro";
+
+interface Props {
+  portal: PortalEntry;
+  categoryLabel: string;
+}
+
+const { portal, categoryLabel } = Astro.props;
+const host = getHostname(portal.primaryUrl);
+const detailHref = `/services/${portal.slug}/`;
+---
+
+<li
+  class="portal-item"
+  data-portal-card
+  data-slug={portal.slug}
+  data-category={portal.category}
+  data-coverage={portal.coverage}
+>
+  <article class="portal-card">
+    <div class="card-meta-row">
+      <span class="agency-tag">{portal.agencyShort}</span>
+      <div class="card-badges">
+        {portal.coverage === "city" && portal.cityName && (
+          <span class="city-pill">{portal.cityName}</span>
+        )}
+        <TrustBadge tier={portal.trustTier} />
+      </div>
+    </div>
+
+    <h2 class="card-title">
+      <a href={detailHref}>{portal.title}</a>
+    </h2>
+
+    <span class="domain-pill">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+      <span>{host}</span>
+    </span>
+
+    <p class="card-summary">{portal.summary}</p>
+
+    <div class="card-flags">
+      <span class="mini-flag">{categoryLabel}</span>
+      {portal.requiresAppointment && (
+        <span class="mini-flag">Appointment needed</span>
+      )}
+      {portal.scamWarning && (
+        <span class="mini-flag mini-flag--warn">Scam alert inside</span>
+      )}
+    </div>
+
+    <div class="card-actions">
+      <a
+        href={portal.primaryUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-primary"
+      >
+        <span>{portal.primaryActionLabel}</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 3h6v6" />
+          <path d="M10 14 21 3" />
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+        </svg>
+      </a>
+      <a href={detailHref} class="btn btn-secondary">
+        Details &amp; safety<span class="visually-hidden"> for {portal.title}</span>
+      </a>
+    </div>
+  </article>
+</li>

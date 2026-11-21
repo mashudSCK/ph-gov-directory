@@ -1,0 +1,88 @@
+---
+import "../styles/global.css";
+import { SITE_CONFIG, buildSuggestUrl } from "../lib/site.ts";
+
+interface Props {
+  title: string;
+  description?: string;
+  currentPath?: string;
+}
+
+const {
+  title,
+  description = SITE_CONFIG.tagline,
+  currentPath = "/",
+} = Astro.props;
+
+const suggestUrl = buildSuggestUrl();
+const fullTitle = title === SITE_CONFIG.name ? `${SITE_CONFIG.name} — Verified Philippine Government Portals` : `${title} | ${SITE_CONFIG.name}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#1d4ed8" />
+  </head>
+  <body>
+    <a href="#main-heading" class="skip-link">Skip to main content</a>
+
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="/" class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+          </span>
+          <span>{SITE_CONFIG.name}</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Primary">
+          <ul>
+            <li>
+              <a href="/" aria-current={currentPath === "/" ? "page" : undefined}>
+                Directory
+              </a>
+            </li>
+            <li>
+              <a href="/trust/" aria-current={currentPath === "/trust/" ? "page" : undefined}>
+                How we verify
+              </a>
+            </li>
+            <li>
+              <a href={suggestUrl} target="_blank" rel="noopener noreferrer">
+                Suggest
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <div class="container">
+        <slot />
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>{SITE_CONFIG.disclaimer}</p>
+        <div class="footer-links">
+          <a href="/trust/">Trust &amp; verification policy</a>
+          <a href={suggestUrl} target="_blank" rel="noopener noreferrer">
+            Suggest a missing portal
+          </a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
