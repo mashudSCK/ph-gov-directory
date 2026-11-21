@@ -23,11 +23,36 @@ export interface SearchablePortal {
 
 const VALID_CATEGORIES = new Set<string>(CATEGORY_IDS);
 const VALID_COVERAGES = new Set<string>(["all", "nationwide", "city"]);
+const QUERY_STOPWORDS = new Set<string>([
+  "ng",
+  "sa",
+  "ang",
+  "na",
+  "mga",
+  "paano",
+  "saan",
+  "para",
+  "po",
+  "kumuha",
+  "how",
+  "to",
+  "get",
+  "where",
+  "the",
+  "for",
+  "of",
+  "in",
+  "on",
+  "a",
+  "an",
+  "my",
+]);
 
 export function normalizeText(input: string): string {
   return input
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
+    .replace(/['’]/g, "")
     .toLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
@@ -38,7 +63,9 @@ export function tokenizeQuery(query: string): string[] {
   if (!normalized) {
     return [];
   }
-  return normalized.split(" ").filter(Boolean);
+  const tokens = normalized.split(" ").filter(Boolean);
+  const meaningful = tokens.filter((token) => !QUERY_STOPWORDS.has(token));
+  return meaningful.length > 0 ? meaningful : tokens;
 }
 
 function includesWordPrefix(haystack: string, token: string): boolean {

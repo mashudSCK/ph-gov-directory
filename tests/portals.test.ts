@@ -32,6 +32,20 @@ test("validatePortalList rejects duplicate slugs", () => {
   );
 });
 
+test("validatePortalList names the offending slug on missing or stray cityName", () => {
+  assert.throws(
+    () => validatePortalList([makeSample({ slug: "broken-city", coverage: "city" })]),
+    /broken-city[\s\S]*cityName/
+  );
+  assert.throws(
+    () =>
+      validatePortalList([
+        makeSample({ slug: "stray-city", coverage: "nationwide", cityName: "Manila" }),
+      ]),
+    /stray-city[\s\S]*cityName/
+  );
+});
+
 test("validatePortalList sorts popular portals first, then alphabetically by title", () => {
   const result = validatePortalList([
     makeSample({ slug: "zebra", title: "Zebra Portal", popular: false }),

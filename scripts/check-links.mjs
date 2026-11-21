@@ -15,6 +15,27 @@ function stripWwwHost(rawUrl) {
   return host.startsWith("www.") ? host.slice(4) : host;
 }
 
+const SHARED_PUBLIC_SUFFIXES = new Set(["gov.ph", "com.ph", "org.ph", "edu.ph", "net.ph"]);
+const TIMEOUT_CODES = new Set([
+  "UND_ERR_CONNECT_TIMEOUT",
+  "UND_ERR_HEADERS_TIMEOUT",
+  "UND_ERR_BODY_TIMEOUT",
+  "ETIMEDOUT",
+]);
+
+/**
+ * @param {string} origHost
+ * @param {string} finalHost
+ * @returns {boolean}
+ */
+function isSameSiteRedirect(origHost, finalHost) {
+  if (origHost === finalHost) return true;
+  if (SHARED_PUBLIC_SUFFIXES.has(finalHost) || SHARED_PUBLIC_SUFFIXES.has(origHost)) {
+    return false;
+  }
+  return finalHost.endsWith(`.${origHost}`) || origHost.endsWith(`.${finalHost}`);
+}
+
 /**
  * @param {{ status?: number; error?: unknown; originalUrl: string; finalUrl?: string }} probe
  * @returns {{ level: "OK" | "WARN" | "FAIL"; reason: string }}
@@ -24,13 +45,20 @@ export function classifyProbeResult(probe) {
     const err = probe.error instanceof Error ? probe.error : new Error(String(probe.error));
     const cause =
       err.cause && typeof err.cause === "object"
-        ? /** @type {{ code?: string; message?: string }} */ (err.cause)
+        ? /** @type {{ code?: string; name?: string; message?: string }} */ (err.cause)
         : undefined;
     const causeCode = cause?.code ?? "";
+    const causeName = cause?.name ?? "";
     const causeMessage = cause?.message ?? "";
 
-    if (err.name === "TimeoutError" || err.name === "AbortError") {
-      return { level: "WARN", reason: `Timeout: ${err.message}` };
+    if (
+      err.name === "TimeoutError" ||
+      err.name === "AbortError" ||
+      causeName === "TimeoutError" ||
+      causeName === "AbortError" ||
+      TIMEOUT_CODES.has(causeCode)
+    ) {
+      return { level: "WARN", reason: `Timeout: ${causeCode || err.message}` };
     }
     if (causeCode === "UNABLE_TO_VERIFY_LEAF_SIGNATURE") {
       return {
@@ -48,15 +76,19 @@ export function classifyProbeResult(probe) {
   }
 
   const status = probe.status ?? 0;
-  if (status >= 200 && status < 400) {
+  if (status >= 200 && status < 300) {
     if (probe.finalUrl) {
       const origHost = stripWwwHost(probe.originalUrl);
       const finalHost = stripWwwHost(probe.finalUrl);
-      if (origHost !== finalHost && !finalHost.endsWith(`.${origHost}`) && !origHost.endsWith(`.${finalHost}`)) {
+      if (!isSameSiteRedirect(origHost, finalHost)) {
         return { level: "WARN", reason: `HTTP ${status} redirected to ${finalHost}` };
       }
     }
     return { level: "OK", reason: `HTTP ${status}` };
+  }
+
+  if (status >= 300 && status < 400) {
+    return { level: "WARN", reason: `HTTP ${status} unresolved redirect` };
   }
 
   if (status === 401 || status === 403 || status === 429 || status === 503) {
@@ -99,8 +131,9 @@ export function collectUrlsFromPortals(portals) {
 
 /**
  * @param {string} url
+ * @param {typeof fetch} [fetchFn]
  */
-async function probeUrl(url) {
+export async function probeUrl(url, fetchFn = fetch) {
   const headers = {
     "user-agent":
       "Mozilla/5.0 (compatible; GovDirPH-LinkCheck/1.0; +https://github.com/mashudSCK/ph-gov-directory)",
@@ -108,21 +141,28 @@ async function probeUrl(url) {
   };
 
   try {
-    let response = await fetch(url, {
+    let response = await fetchFn(url, {
       method: "HEAD",
       redirect: "follow",
       headers,
       signal: AbortSignal.timeout(10_000),
     });
 
-    if (response.status === 405 || response.status === 403 || response.status === 501 || response.status === 400) {
-      response = await fetch(url, {
+    if (
+      response.status === 400 ||
+      response.status === 403 ||
+      response.status === 405 ||
+      response.status === 406 ||
+      response.status === 501
+    ) {
+      await response.body?.cancel().catch(() => {});
+      response = await fetchFn(url, {
         method: "GET",
         redirect: "follow",
         headers,
         signal: AbortSignal.timeout(10_000),
       });
-      await response.body?.cancel();
+      await response.body?.cancel().catch(() => {});
     }
 
     return classifyProbeResult({

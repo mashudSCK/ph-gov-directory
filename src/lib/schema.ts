@@ -31,18 +31,24 @@ export const OnlineTransactionSchema = z.enum(ONLINE_TRANSACTIONS);
 
 export const SafeUrlSchema = z
   .string()
-  .trim()
-  .url()
-  .refine(
-    (value) => {
-      try {
-        const parsed = new URL(value);
-        return parsed.protocol === "https:" || parsed.protocol === "http:";
-      } catch {
-        return false;
-      }
-    },
-    { message: "URL must use https:// or http://" }
+  .refine((value) => value.length > 0 && !/\s/.test(value), {
+    message: "URL must not be empty or contain whitespace",
+  })
+  .pipe(
+    z
+      .string()
+      .url()
+      .refine(
+        (value) => {
+          try {
+            const parsed = new URL(value);
+            return parsed.protocol === "https:" || parsed.protocol === "http:";
+          } catch {
+            return false;
+          }
+        },
+        { message: "URL must use https:// or http://" }
+      )
   );
 
 export const SubLinkSchema = z.object({
@@ -86,14 +92,14 @@ export const PortalEntrySchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["cityName"],
-        message: "cityName is required when coverage is 'city'",
+        message: `Portal "${entry.slug}": cityName is required when coverage is 'city'`,
       });
     }
     if (entry.coverage === "nationwide" && entry.cityName) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["cityName"],
-        message: "cityName must be omitted when coverage is 'nationwide'",
+        message: `Portal "${entry.slug}": cityName must be omitted when coverage is 'nationwide'`,
       });
     }
   });

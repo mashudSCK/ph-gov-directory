@@ -3,13 +3,17 @@ import assert from "node:assert/strict";
 import { PortalEntrySchema, SafeUrlSchema, CATEGORIES } from "../src/lib/schema.ts";
 import { buildReportUrl, buildSuggestUrl } from "../src/lib/site.ts";
 
-test("SafeUrlSchema allows http/https and rejects javascript/data/ftp", () => {
+test("SafeUrlSchema allows http/https and rejects javascript/data/ftp and whitespace", () => {
   assert.equal(SafeUrlSchema.safeParse("https://clearance.nbi.gov.ph/").success, true);
   assert.equal(SafeUrlSchema.safeParse("http://legacy.example.gov.ph/").success, true);
   assert.equal(SafeUrlSchema.safeParse("javascript:alert(1)").success, false);
   assert.equal(SafeUrlSchema.safeParse("data:text/html,hi").success, false);
   assert.equal(SafeUrlSchema.safeParse("ftp://gov.ph").success, false);
   assert.equal(SafeUrlSchema.safeParse("not a url").success, false);
+  assert.equal(SafeUrlSchema.safeParse("  https://clearance.nbi.gov.ph/").success, false);
+  assert.equal(SafeUrlSchema.safeParse("https://clearance.nbi.gov.ph/my path").success, false);
+  assert.equal(SafeUrlSchema.safeParse("https://clearance.nbi.gov.ph/\nfoo").success, false);
+  assert.equal(SafeUrlSchema.safeParse("").success, false);
 });
 
 test("PortalEntrySchema enforces cityName only when coverage is city and validates lastVerified", () => {

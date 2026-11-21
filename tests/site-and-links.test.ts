@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { classifyProbeResult, collectUrlsFromPortals } from "../scripts/check-links.mjs";
+import {
+  classifyProbeResult,
+  collectUrlsFromPortals,
+  probeUrl,
+} from "../scripts/check-links.mjs";
 
 test("classifyProbeResult classifies 200 OK, redirects, WAF blocks, and hard failures", () => {
   assert.equal(
@@ -115,4 +119,57 @@ test("collectUrlsFromPortals deduplicates URLs and tracks referencing slugs", ()
   assert.equal(urls.length, 2);
   const psa = urls.find((item: { url: string; slugs: string[] }) => item.url === "https://psa.gov.ph/");
   assert.deepEqual(psa?.slugs, ["a", "b"]);
+});
+
+test("classifyProbeResult warns on Undici timeouts, 3xx responses, and redirects to bare gov.ph", () => {
+  assert.equal(
+    classifyProbeResult({
+      error: Object.assign(new Error("fetch failed"), {
+        cause: Object.assign(new Error("Connect Timeout Error"), {
+          code: "UND_ERR_CONNECT_TIMEOUT",
+        }),
+      }),
+      originalUrl: "https://slow.gov.ph/",
+    }).level,
+    "WARN"
+  );
+
+  assert.equal(
+    classifyProbeResult({
+      status: 302,
+      originalUrl: "https://old.agency.gov.ph/",
+      finalUrl: "https://old.agency.gov.ph/",
+    }).level,
+    "WARN"
+  );
+
+  assert.equal(
+    classifyProbeResult({
+      status: 200,
+      originalUrl: "https://defunct.gov.ph/",
+      finalUrl: "https://www.gov.ph/",
+    }).level,
+    "WARN"
+  );
+});
+
+test("probeUrl falls back from HEAD 405/403 to GET", async () => {
+  const methods: string[] = [];
+  const fakeFetch = async (url: string, init?: { method?: string }) => {
+    methods.push(init?.method ?? "GET");
+    if (init?.method === "HEAD") {
+      return { status: 405, url, body: null };
+    }
+    return {
+      status: 200,
+      url,
+      body: {
+        cancel: async () => {},
+      },
+    };
+  };
+
+  const result = await probeUrl("https://example.gov.ph/", fakeFetch as unknown as typeof fetch);
+  assert.deepEqual(methods, ["HEAD", "GET"]);
+  assert.equal(result.level, "OK");
 });

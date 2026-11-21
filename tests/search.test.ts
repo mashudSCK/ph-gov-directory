@@ -55,10 +55,34 @@ const samplePortals = [
   },
 ];
 
-test("normalizeText strips diacritics, punctuation, and extra spaces", () => {
+test("normalizeText strips diacritics, apostrophes, punctuation, and extra spaces", () => {
   assert.equal(normalizeText("  NBI-Clearance! Niño  "), "nbi clearance nino");
-  assert.deepEqual(tokenizeQuery("  kuha ng lisensya! "), ["kuha", "ng", "lisensya"]);
+  assert.equal(normalizeText("Driver's License"), "drivers license");
+  assert.deepEqual(tokenizeQuery("  kuha ng lisensya! "), ["kuha", "lisensya"]);
   assert.deepEqual(tokenizeQuery("   "), []);
+});
+
+test("filterAndRankPortals matches conversational Tagalog/Taglish queries and drivers license without apostrophe", () => {
+  const byTagalog = filterAndRankPortals(samplePortals, {
+    q: "paano kumuha ng nbi",
+    category: "all",
+    coverage: "all",
+  });
+  assert.deepEqual(byTagalog.map((p) => p.slug), ["nbi-clearance"]);
+
+  const byDriversNoApostrophe = filterAndRankPortals(samplePortals, {
+    q: "drivers license",
+    category: "all",
+    coverage: "all",
+  });
+  assert.deepEqual(byDriversNoApostrophe.map((p) => p.slug), ["lto-ltms"]);
+
+  const byConversationalLto = filterAndRankPortals(samplePortals, {
+    q: "how to get lisensya",
+    category: "all",
+    coverage: "all",
+  });
+  assert.deepEqual(byConversationalLto.map((p) => p.slug), ["lto-ltms"]);
 });
 
 test("filterAndRankPortals matches Tagalog/Taglish aliases and punctuation", () => {
