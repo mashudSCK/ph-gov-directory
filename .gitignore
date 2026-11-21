@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.astro/
+.superpowers/
+.taste-skill/
+.env
+.env.*
+*.log
