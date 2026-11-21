@@ -52,7 +52,7 @@
     "category": "social-health",
     "coverage": "nationwide",
     "summary": "Check PhilHealth membership status, print your Member Data Record (MDR), and review contribution history.",
-    "primaryUrl": "https://memberinquiry.philhealth.gov.ph/",
+    "primaryUrl": "https://memberinquiry.philhealth.gov.ph/member/",
     "primaryActionLabel": "Open PhilHealth Member Portal",
     "subLinks": [
       { "label": "PhilHealth Main Website", "url": "https://www.philhealth.gov.ph/", "kind": "homepage" }
@@ -77,7 +77,7 @@
     "primaryUrl": "https://www.philhealth.gov.ph/",
     "primaryActionLabel": "Open PhilHealth Website",
     "subLinks": [
-      { "label": "Member Portal (MDR)", "url": "https://memberinquiry.philhealth.gov.ph/", "kind": "verification" }
+      { "label": "Member Portal (MDR)", "url": "https://memberinquiry.philhealth.gov.ph/member/", "kind": "verification" }
     ],
     "trustTier": "official-gov-ph",
     "verificationSourceUrl": "https://doh.gov.ph/",
