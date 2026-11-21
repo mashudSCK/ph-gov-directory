@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { validatePortalList, getHostname } from "../src/lib/portals.ts";
+import { validatePortalList, getHostname, loadAllPortals } from "../src/lib/portals.ts";
+import { CATEGORY_IDS } from "../src/lib/categories.ts";
 
 const makeSample = (overrides: Record<string, unknown> = {}) => ({
   slug: "nbi-clearance",
@@ -47,4 +48,17 @@ test("validatePortalList sorts popular portals first, then alphabetically by tit
 test("getHostname strips www prefix and returns clean hostname", () => {
   assert.equal(getHostname("https://www.psaserbilis.com.ph/default.aspx"), "psaserbilis.com.ph");
   assert.equal(getHostname("https://clearance.nbi.gov.ph/"), "clearance.nbi.gov.ph");
+});
+
+test("curated dataset loads >= 60 verified portals across all 8 categories and >= 6 major cities", async () => {
+  const portals = await loadAllPortals();
+  assert.ok(portals.length >= 60, `Expected >= 60 portals, got ${portals.length}`);
+
+  for (const categoryId of CATEGORY_IDS) {
+    const count = portals.filter((p) => p.category === categoryId).length;
+    assert.ok(count >= 4, `Expected >= 4 portals in category '${categoryId}', got ${count}`);
+  }
+
+  const cityPortals = portals.filter((p) => p.coverage === "city");
+  assert.ok(cityPortals.length >= 6, `Expected >= 6 major city portals, got ${cityPortals.length}`);
 });

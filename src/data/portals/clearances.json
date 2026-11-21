@@ -1,0 +1,113 @@
+[
+  {
+    "slug": "nbi-clearance",
+    "title": "NBI Clearance Online Application & Renewal",
+    "agency": "National Bureau of Investigation (NBI)",
+    "agencyShort": "NBI",
+    "category": "clearances",
+    "coverage": "nationwide",
+    "summary": "Register, schedule an NBI clearance appointment, pay online, or apply for quick renewal.",
+    "primaryUrl": "https://clearance.nbi.gov.ph/",
+    "primaryActionLabel": "Open NBI Clearance Portal",
+    "subLinks": [
+      { "label": "NBI Official Website", "url": "https://nbi.gov.ph/", "kind": "homepage" }
+    ],
+    "trustTier": "official-gov-ph",
+    "verificationSourceUrl": "https://nbi.gov.ph/",
+    "verificationNote": "Official NBI clearance subdomain linked from nbi.gov.ph.",
+    "lastVerified": "2026-11-21",
+    "scamWarning": "Only book at clearance.nbi.gov.ph. Avoid lookalike .com or .org sites and third-party agents charging extra booking fees.",
+    "aliases": ["nbi", "nbi clearance", "kuha ng nbi", "nbi renewal", "nbi appointment", "hit", "first time jobseeker"],
+    "popular": true,
+    "requiresAppointment": true,
+    "onlineTransaction": "partial"
+  },
+  {
+    "slug": "pnp-police-clearance",
+    "title": "PNP National Police Clearance System (NPCS)",
+    "agency": "Philippine National Police (PNP)",
+    "agencyShort": "PNP",
+    "category": "clearances",
+    "coverage": "nationwide",
+    "summary": "Book a National Police Clearance appointment, pay via LandBank Link.Biz, and verify clearance QR codes.",
+    "primaryUrl": "https://pnpclearance.ph/",
+    "primaryActionLabel": "Open PNP Clearance Portal",
+    "subLinks": [
+      { "label": "PNP Official Website", "url": "https://pnp.gov.ph/", "kind": "homepage" }
+    ],
+    "trustTier": "official-non-gov-domain",
+    "verificationSourceUrl": "https://pnp.gov.ph/",
+    "verificationNote": "Official PNP National Police Clearance portal cited in PNP Citizen's Charter documents.",
+    "lastVerified": "2026-11-21",
+    "scamWarning": "Legitimate PNP portal uses pnpclearance.ph (non-.gov.ph). Never transfer clearance fees to personal GCash or bank accounts.",
+    "aliases": ["police clearance", "pnp", "npcs", "kuha ng police clearance", "pnp appointment", "pnpclearance"],
+    "popular": true,
+    "requiresAppointment": true,
+    "onlineTransaction": "partial"
+  },
+  {
+    "slug": "ombudsman-clearance",
+    "title": "Office of the Ombudsman Clearance",
+    "agency": "Office of the Ombudsman",
+    "agencyShort": "Ombudsman",
+    "category": "clearances",
+    "coverage": "nationwide",
+    "summary": "Access Ombudsman clearance application forms, procedures, and regional office filing instructions.",
+    "primaryUrl": "https://www.ombudsman.gov.ph/",
+    "primaryActionLabel": "Open Ombudsman Portal",
+    "subLinks": [],
+    "trustTier": "official-gov-ph",
+    "verificationSourceUrl": "https://www.gov.ph/",
+    "verificationNote": "Official constitutional office domain under ombudsman.gov.ph.",
+    "lastVerified": "2026-11-21",
+    "aliases": ["ombudsman", "ombudsman clearance", "government employment clearance", "no pending case"],
+    "popular": false,
+    "requiresAppointment": false,
+    "onlineTransaction": "partial"
+  },
+  {
+    "slug": "dole-employment-services",
+    "title": "DOLE Employment, Complaints & Compliance Services",
+    "agency": "Department of Labor and Employment (DOLE)",
+    "agencyShort": "DOLE",
+    "category": "clearances",
+    "coverage": "nationwide",
+    "summary": "Access DOLE online establishment registration, labor complaint assistance (SEnA), and work clearances.",
+    "primaryUrl": "https://www.dole.gov.ph/",
+    "primaryActionLabel": "Open DOLE Portal",
+    "subLinks": [
+      { "label": "PhilJobNet Job Portal", "url": "https://philjobnet.gov.ph/", "kind": "guide" }
+    ],
+    "trustTier": "official-gov-ph",
+    "verificationSourceUrl": "https://www.gov.ph/",
+    "verificationNote": "Official Department of Labor and Employment website on dole.gov.ph.",
+    "lastVerified": "2026-11-21",
+    "aliases": ["dole", "labor complaint", "sena", "aep", "alien employment permit", "trabaho", "dole clearance"],
+    "popular": false,
+    "requiresAppointment": false,
+    "onlineTransaction": "partial"
+  },
+  {
+    "slug": "judiciary-supreme-court",
+    "title": "Supreme Court & Judiciary eServices",
+    "agency": "Supreme Court of the Philippines",
+    "agencyShort": "Judiciary",
+    "category": "clearances",
+    "coverage": "nationwide",
+    "summary": "Access Bar matters, court clearances, Judiciary advisories, and official Philippine court portals.",
+    "primaryUrl": "https://sc.judiciary.gov.ph/",
+    "primaryActionLabel": "Open Judiciary Portal",
+    "subLinks": [
+      { "label": "Court of Appeals", "url": "https://ca.judiciary.gov.ph/", "kind": "homepage" },
+      { "label": "Sandiganbayan", "url": "https://sb.judiciary.gov.ph/", "kind": "homepage" }
+    ],
+    "trustTier": "official-gov-ph",
+    "verificationSourceUrl": "https://www.gov.ph/",
+    "verificationNote": "Official Supreme Court domain under judiciary.gov.ph.",
+    "lastVerified": "2026-11-21",
+    "aliases": ["supreme court", "judiciary", "bar exam", "court clearance", "rtc clearance", "lawyers list"],
+    "popular": false,
+    "requiresAppointment": false,
+    "onlineTransaction": "info-only"
+  }
+]
