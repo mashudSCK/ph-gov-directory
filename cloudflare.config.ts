@@ -2,7 +2,7 @@ import { defineConfig } from "cf/config";
 
 export default defineConfig({
   worker: {
-    "name": "ph-gov-directory",
+    "name": "govdir",
     "compatibilityDate": "2026-09-21",
     "observability": {
       "enabled": true

@@ -12,11 +12,11 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "npm run build && wrangler dev",
     "test": "node --test tests/*.test.ts",
     "check": "tsc --noEmit",
     "check:links": "node scripts/check-links.mjs",
-    "deploy": "cf deploy",
+    "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "cf types"
   },
   "dependencies": {
