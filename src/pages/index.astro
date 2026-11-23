@@ -1,12 +1,28 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PortalCard from "../components/PortalCard.astro";
-import { loadAllPortals } from "../lib/portals.ts";
-import { CATEGORIES, CATEGORY_LABEL_MAP } from "../lib/categories.ts";
+import { loadAllPortals, getHostname } from "../lib/portals.ts";
+import { CATEGORIES } from "../lib/categories.ts";
 import { SITE_CONFIG, buildSuggestUrl } from "../lib/site.ts";
 
 const portals = await loadAllPortals();
 const suggestUrl = buildSuggestUrl();
+
+const quickTaskDefs = [
+  { slug: "nbi-clearance", label: "NBI Clearance" },
+  { slug: "dfa-passport", label: "DFA Passport" },
+  { slug: "psa-serbilis", label: "PSA Birth Certificate" },
+  { slug: "lto-ltms", label: "LTO Driver's License" },
+  { slug: "sss-member-portal", label: "My.SSS Portal" },
+  { slug: "philhealth-member", label: "PhilHealth Member" },
+] as const;
+
+const quickTasks = quickTaskDefs
+  .map((def) => {
+    const portal = portals.find((p) => p.slug === def.slug);
+    return portal ? { ...def, portal, host: getHostname(portal.primaryUrl) } : null;
+  })
+  .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
 const searchIndex = portals.map((portal) => ({
   slug: portal.slug,
@@ -26,8 +42,7 @@ const searchIndex = portals.map((portal) => ({
   <section class="hero">
     <h1 id="main-heading" tabindex="-1">Find the legit Philippine government portal.</h1>
     <p class="hero-sub">
-      Search by task in English or Tagalog—direct links verified against official agencies, with
-      scam warnings where they matter.
+      Direct links to verified Philippine government portals. Search in English or Tagalog.
     </p>
   </section>
 
@@ -48,7 +63,7 @@ const searchIndex = portals.map((portal) => ({
           name="q"
           type="search"
           class="search-input"
-          placeholder="Try &quot;NBI clearance&quot;, &quot;pasaporte&quot;, &quot;lisensya&quot;, &quot;SSS&quot;, or &quot;Quezon City&quot;..."
+          placeholder="Search NBI, passport, SSS, or city"
           aria-describedby="search-hint"
           autocomplete="off"
           enterkeyhint="search"
@@ -110,11 +125,41 @@ const searchIndex = portals.map((portal) => ({
     </div>
   </search>
 
-  <ul id="portal-grid" class="portal-grid" role="list">
+  {quickTasks.length > 0 && (
+    <section id="quick-tasks" class="quick-tasks" aria-labelledby="quick-tasks-heading">
+      <div class="section-head">
+        <h2 id="quick-tasks-heading">Most requested services</h2>
+        <span class="section-meta">Direct official links</span>
+      </div>
+      <ul class="quick-grid" role="list">
+        {quickTasks.map((item) => (
+          <li>
+            <a href={`/services/${item.slug}/`} class="quick-card">
+              <span class="quick-title">{item.label}</span>
+              <span class="quick-host">{item.host}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <div class="section-head directory-head">
+    <h2 id="directory-heading">Verified portals</h2>
+    <span class="section-meta">Popular first, then A–Z</span>
+  </div>
+
+  <ul id="portal-grid" class="portal-grid" role="list" aria-labelledby="directory-heading">
     {portals.map((portal) => (
-      <PortalCard portal={portal} categoryLabel={CATEGORY_LABEL_MAP[portal.category]} />
+      <PortalCard portal={portal} />
     ))}
   </ul>
+
+  <div id="list-pagination" class="list-pagination" hidden>
+    <button id="show-all-portals" type="button" class="btn btn-secondary">
+      Show all {portals.length} verified portals
+    </button>
+  </div>
 
   <section id="empty-state" class="empty-state" hidden aria-labelledby="empty-heading">
     <h2 id="empty-heading">No matching portals found</h2>

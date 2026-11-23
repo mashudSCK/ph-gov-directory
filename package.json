@@ -1,8 +1,14 @@
 {
   "name": "ph-gov-directory",
   "version": "0.1.0",
+  "description": "Verified directory of Philippine government portals Filipinos actually use.",
   "private": true,
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mashudSCK/ph-gov-directory.git"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

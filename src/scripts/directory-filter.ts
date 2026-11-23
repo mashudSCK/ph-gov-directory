@@ -8,6 +8,7 @@ import {
 import type { CategoryId } from "../lib/categories.ts";
 
 const LAST_QUERY_KEY = "govdir:last-query";
+const INITIAL_VISIBLE_LIMIT = 15;
 
 function initDirectoryFilter(): void {
   const indexEl = document.getElementById("portal-search-index");
@@ -19,6 +20,9 @@ function initDirectoryFilter(): void {
   const liveAnnouncerEl = document.getElementById("results-announcer");
   const emptyEl = document.getElementById("empty-state");
   const resetBtn = document.getElementById("reset-filters") as HTMLButtonElement | null;
+  const quickTasksEl = document.getElementById("quick-tasks");
+  const paginationEl = document.getElementById("list-pagination");
+  const showAllBtn = document.getElementById("show-all-portals") as HTMLButtonElement | null;
 
   if (!indexEl || !inputEl || !gridEl || !countEl || !emptyEl) {
     return;
@@ -53,6 +57,7 @@ function initDirectoryFilter(): void {
 
   let state: FilterState = parseFilterState(new URLSearchParams(window.location.search));
   let isComposing = false;
+  let isExpanded = false;
   let announceTimer: number | undefined;
 
   function syncUrlAndStorage(): void {
@@ -105,10 +110,14 @@ function initDirectoryFilter(): void {
     }
 
     const matches = filterAndRankPortals(portals, state);
-    const matchedSlugs = new Set(matches.map((portal) => portal.slug));
+    const isDefaultView =
+      state.q.trim().length === 0 && state.category === "all" && state.coverage === "all";
+    const visibleMatches =
+      isDefaultView && !isExpanded ? matches.slice(0, INITIAL_VISIBLE_LIMIT) : matches;
+    const visibleSlugs = new Set(visibleMatches.map((portal) => portal.slug));
 
     const fragment = document.createDocumentFragment();
-    for (const portal of matches) {
+    for (const portal of visibleMatches) {
       const card = cardMap.get(portal.slug);
       if (card) {
         card.hidden = false;
@@ -117,7 +126,7 @@ function initDirectoryFilter(): void {
     }
 
     for (const [slug, card] of cardMap) {
-      if (!matchedSlugs.has(slug)) {
+      if (!visibleSlugs.has(slug)) {
         card.hidden = true;
         fragment.appendChild(card);
       }
@@ -126,10 +135,24 @@ function initDirectoryFilter(): void {
     grid.appendChild(fragment);
     empty.hidden = matches.length > 0;
 
+    if (quickTasksEl) {
+      quickTasksEl.hidden = !isDefaultView;
+    }
+
+    const remaining = matches.length - visibleMatches.length;
+    if (paginationEl && showAllBtn) {
+      paginationEl.hidden = remaining <= 0;
+      if (remaining > 0) {
+        showAllBtn.textContent = `Show all ${matches.length} verified portals (${remaining} more)`;
+      }
+    }
+
     const summary =
-      matches.length === portals.length
-        ? `Showing all ${portals.length} verified portals`
-        : `Showing ${matches.length} of ${portals.length} verified portals`;
+      visibleMatches.length < matches.length
+        ? `Showing top ${visibleMatches.length} of ${matches.length} verified portals`
+        : matches.length === portals.length
+          ? `Showing all ${portals.length} verified portals`
+          : `Showing ${matches.length} of ${portals.length} verified portals`;
 
     count.textContent = summary;
     if (announce) {
@@ -202,6 +225,11 @@ function initDirectoryFilter(): void {
     state = { q: "", category: "all", coverage: "all" };
     render(true);
     input.focus();
+  });
+
+  showAllBtn?.addEventListener("click", () => {
+    isExpanded = true;
+    render(true);
   });
 
   document.addEventListener("keydown", (event) => {

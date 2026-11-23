@@ -37,6 +37,14 @@ const transactionLabels: Record<PortalEntry["onlineTransaction"], string> = {
   partial: "Online booking + in-person step",
   "info-only": "Official forms & guidance",
 };
+
+const GOV_DOMAIN_RE = /\b([a-z0-9-]+(?:\.[a-z0-9-]+)*\.gov\.ph)\b/gi;
+const scamWarningParts = portal.scamWarning
+  ? portal.scamWarning.split(GOV_DOMAIN_RE).map((part, idx) => ({
+      text: part,
+      isDomain: idx % 2 === 1,
+    }))
+  : [];
 ---
 
 <BaseLayout
@@ -100,7 +108,21 @@ const transactionLabels: Record<PortalEntry["onlineTransaction"], string> = {
     {portal.scamWarning && (
       <section class="callout callout--warn" aria-labelledby="scam-heading">
         <h2 id="scam-heading">Watch out for scams &amp; fixers</h2>
-        <p>{portal.scamWarning}</p>
+        <p>
+          {scamWarningParts.map((part) =>
+            part.isDomain ? (
+              <a
+                href={`https://${part.text.toLowerCase()}/`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <code>{part.text}</code>
+              </a>
+            ) : (
+              part.text
+            )
+          )}
+        </p>
       </section>
     )}
 
