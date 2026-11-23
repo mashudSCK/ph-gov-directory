@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import TrustBadge from "../components/TrustBadge.astro";
 import { SITE_CONFIG, buildSuggestUrl } from "../lib/site.ts";
+import { buildTrustStructuredData } from "../lib/seo.ts";
 
 const suggestUrl = buildSuggestUrl();
 ---
@@ -10,6 +11,7 @@ const suggestUrl = buildSuggestUrl();
   title="How We Verify Links"
   description="How GovDir PH verifies official Philippine government domains, non-.gov.ph portals, and authorized partners."
   currentPath="/trust/"
+  structuredData={buildTrustStructuredData()}
 >
   <a href="/" class="back-link">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { loadAllPortals } from "../lib/portals.ts";
-
-const SITE_ORIGIN = "https://govdir.ph-tools.workers.dev";
+import { buildCanonicalUrl } from "../lib/site.ts";
 
 export const prerender = true;
 
@@ -9,10 +8,10 @@ export const GET: APIRoute = async () => {
   const portals = await loadAllPortals();
 
   const urls = [
-    { loc: `${SITE_ORIGIN}/`, lastmod: undefined },
-    { loc: `${SITE_ORIGIN}/trust/`, lastmod: undefined },
+    { loc: buildCanonicalUrl("/"), lastmod: undefined },
+    { loc: buildCanonicalUrl("/trust/"), lastmod: undefined },
     ...portals.map((portal) => ({
-      loc: `${SITE_ORIGIN}/services/${portal.slug}/`,
+      loc: buildCanonicalUrl(`/services/${portal.slug}/`),
       lastmod: portal.lastVerified,
     })),
   ];

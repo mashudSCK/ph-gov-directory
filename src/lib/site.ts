@@ -1,5 +1,6 @@
 export interface SiteConfig {
   name: string;
+  origin: string;
   tagline: string;
   disclaimer: string;
   githubRepo: string;
@@ -8,6 +9,7 @@ export interface SiteConfig {
 
 export const SITE_CONFIG: SiteConfig = {
   name: "GovDir PH",
+  origin: "https://govdir.ph-tools.workers.dev",
   tagline: "Verified directory of Philippine government portals Filipinos actually use.",
   disclaimer:
     "Independent public-interest directory. Not affiliated with or endorsed by any Philippine government agency. Always verify the domain before entering personal details or making payments.",
@@ -15,6 +17,11 @@ export const SITE_CONFIG: SiteConfig = {
   defaultLastCheckedNote:
     "Every link is verified against an official agency homepage, citizen's charter, or government announcement.",
 };
+
+export function buildCanonicalUrl(pathName: string): string {
+  const normalized = pathName.startsWith("/") ? pathName : `/${pathName}`;
+  return new URL(normalized, SITE_CONFIG.origin).toString();
+}
 
 export function buildReportUrl(entry: {
   slug: string;

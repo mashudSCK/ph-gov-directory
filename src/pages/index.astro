@@ -4,6 +4,7 @@ import PortalCard from "../components/PortalCard.astro";
 import { loadAllPortals, getHostname } from "../lib/portals.ts";
 import { CATEGORIES } from "../lib/categories.ts";
 import { SITE_CONFIG, buildSuggestUrl } from "../lib/site.ts";
+import { buildHomeStructuredData } from "../lib/seo.ts";
 
 const portals = await loadAllPortals();
 const suggestUrl = buildSuggestUrl();
@@ -43,7 +44,12 @@ const searchIndex = portals.map((portal) => ({
 }));
 ---
 
-<BaseLayout title={SITE_CONFIG.name} description={SITE_CONFIG.tagline} currentPath="/">
+<BaseLayout
+  title={SITE_CONFIG.name}
+  description={SITE_CONFIG.tagline}
+  currentPath="/"
+  structuredData={buildHomeStructuredData()}
+>
   <section class="hero">
     <h1 id="main-heading" tabindex="-1">Find the legit Philippine government portal.</h1>
     <p class="hero-sub">

@@ -1,21 +1,28 @@
 ---
 import "../styles/global.css";
-import { SITE_CONFIG, buildSuggestUrl } from "../lib/site.ts";
+import { SITE_CONFIG, buildCanonicalUrl, buildSuggestUrl } from "../lib/site.ts";
+import { serializeJsonLd } from "../lib/seo.ts";
 
 interface Props {
   title: string;
   description?: string;
   currentPath?: string;
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
   title,
   description = SITE_CONFIG.tagline,
   currentPath = "/",
+  structuredData,
 } = Astro.props;
 
 const suggestUrl = buildSuggestUrl();
-const fullTitle = title === SITE_CONFIG.name ? `${SITE_CONFIG.name} — Verified Philippine Government Portals` : `${title} | ${SITE_CONFIG.name}`;
+const canonicalUrl = buildCanonicalUrl(currentPath);
+const fullTitle =
+  title === SITE_CONFIG.name
+    ? `${SITE_CONFIG.name} — Verified Philippine Government Portals`
+    : `${title} | ${SITE_CONFIG.name}`;
 ---
 
 <!doctype html>
@@ -25,11 +32,20 @@ const fullTitle = title === SITE_CONFIG.name ? `${SITE_CONFIG.name} — Verified
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={SITE_CONFIG.name} />
     <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
     <meta name="google-site-verification" content="ZH-a8arco594_47WcEmuwGkfw3Ky9yl1VHhoKgP_6SQ" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {structuredData && (
+      <script type="application/ld+json" set:html={serializeJsonLd(structuredData)} />
+    )}
     <meta name="color-scheme" content="light dark" />
     <script is:inline>
       try {

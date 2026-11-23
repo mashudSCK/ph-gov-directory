@@ -4,6 +4,7 @@ import TrustBadge from "../../components/TrustBadge.astro";
 import { loadAllPortals, getHostname } from "../../lib/portals.ts";
 import { CATEGORY_LABEL_MAP } from "../../lib/categories.ts";
 import { buildReportUrl } from "../../lib/site.ts";
+import { buildPortalStructuredData } from "../../lib/seo.ts";
 import type { PortalEntry, SubLinkKind } from "../../lib/schema.ts";
 
 export async function getStaticPaths() {
@@ -48,9 +49,10 @@ const scamWarningParts = portal.scamWarning
 ---
 
 <BaseLayout
-  title={`${portal.title} — Official Portal`}
+  title={portal.title}
   description={`${portal.summary} Verified destination: ${host}.`}
   currentPath={`/services/${portal.slug}/`}
+  structuredData={buildPortalStructuredData(portal)}
 >
   <a href="/" class="back-link" data-back-to-directory>
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
