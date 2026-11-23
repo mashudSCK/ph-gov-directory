@@ -24,6 +24,11 @@ const quickTasks = quickTaskDefs
   })
   .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
+const categoryCounts = new Map<string, number>();
+for (const portal of portals) {
+  categoryCounts.set(portal.category, (categoryCounts.get(portal.category) ?? 0) + 1);
+}
+
 const searchIndex = portals.map((portal) => ({
   slug: portal.slug,
   title: portal.title,
@@ -46,134 +51,140 @@ const searchIndex = portals.map((portal) => ({
     </p>
   </section>
 
-  <search aria-label="Filter Philippine government portals">
-    <div class="search-panel">
-      <form id="directory-search-form" class="search-form" action="/" method="get">
-        <label for="portal-search" class="visually-hidden">
-          Search services, agencies, or cities (English or Tagalog)
-        </label>
-        <span class="search-icon" aria-hidden="true">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-        </span>
-        <input
-          id="portal-search"
-          name="q"
-          type="search"
-          class="search-input"
-          placeholder="Search NBI, passport, SSS, or city"
-          aria-describedby="search-hint"
-          autocomplete="off"
-          enterkeyhint="search"
-        />
-        <button
-          id="search-clear"
-          type="button"
-          class="search-clear"
-          aria-label="Clear search query"
-          hidden
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </form>
+  <div class="directory-layout">
+    <search class="directory-sidebar" aria-label="Filter Philippine government portals">
+      <div class="search-panel">
+        <form id="directory-search-form" class="search-form" action="/" method="get">
+          <label for="portal-search" class="visually-hidden">
+            Search services, agencies, or cities (English or Tagalog)
+          </label>
+          <span class="search-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+          </span>
+          <input
+            id="portal-search"
+            name="q"
+            type="search"
+            class="search-input"
+            placeholder="Search NBI, passport, SSS, or city"
+            aria-describedby="search-hint"
+            autocomplete="off"
+            enterkeyhint="search"
+          />
+          <button
+            id="search-clear"
+            type="button"
+            class="search-clear"
+            aria-label="Clear search query"
+            hidden
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </form>
 
-      <p id="search-hint" class="search-hint">
-        Matches English &amp; Tagalog terms (e.g. kuha ng NBI, hulog sa SSS, birth certificate, ORUS).
-      </p>
+        <p id="search-hint" class="search-hint">
+          Matches English &amp; Tagalog terms (e.g. kuha ng NBI, hulog sa SSS, birth certificate, ORUS).
+        </p>
 
-      <div class="filter-controls">
-        <div class="coverage-row">
-          <div class="segmented" role="group" aria-label="Coverage filter">
-            <button type="button" data-coverage-filter="all" aria-pressed="true">All</button>
-            <button type="button" data-coverage-filter="nationwide" aria-pressed="false">
-              Nationwide
-            </button>
-            <button type="button" data-coverage-filter="city" aria-pressed="false">
-              Major Cities
-            </button>
-          </div>
-
-          <p id="results-count" class="results-summary tabular-nums">
-            Showing all {portals.length} verified portals
-          </p>
-          <p id="results-announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
-        </div>
-
-        <div class="category-rail-wrap">
-          <div class="category-rail" role="group" aria-label="Category filter">
-            <button type="button" class="chip" data-category-filter="all" aria-pressed="true">
-              All Categories
-            </button>
-            {CATEGORIES.map((category) => (
-              <button
-                type="button"
-                class="chip"
-                data-category-filter={category.id}
-                aria-pressed="false"
-              >
-                {category.shortLabel}
+        <div class="filter-controls">
+          <div class="coverage-row">
+            <div class="segmented" role="group" aria-label="Coverage filter">
+              <button type="button" data-coverage-filter="all" aria-pressed="true">All</button>
+              <button type="button" data-coverage-filter="nationwide" aria-pressed="false">
+                Nationwide
               </button>
-            ))}
+              <button type="button" data-coverage-filter="city" aria-pressed="false">
+                Major Cities
+              </button>
+            </div>
+
+            <p id="results-count" class="results-summary tabular-nums">
+              Showing all {portals.length} verified portals
+            </p>
+            <p id="results-announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
+          </div>
+
+          <div class="category-rail-wrap">
+            <div class="category-rail" role="group" aria-label="Category filter">
+              <button type="button" class="chip" data-category-filter="all" aria-pressed="true">
+                <span>All Categories</span>
+                <span class="chip-count tabular-nums">{portals.length}</span>
+              </button>
+              {CATEGORIES.map((category) => (
+                <button
+                  type="button"
+                  class="chip"
+                  data-category-filter={category.id}
+                  aria-pressed="false"
+                >
+                  <span>{category.shortLabel}</span>
+                  <span class="chip-count tabular-nums">{categoryCounts.get(category.id) ?? 0}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </search>
+    </search>
 
-  {quickTasks.length > 0 && (
-    <section id="quick-tasks" class="quick-tasks" aria-labelledby="quick-tasks-heading">
-      <div class="section-head">
-        <h2 id="quick-tasks-heading">Most requested services</h2>
-        <span class="section-meta">Direct official links</span>
+    <div class="directory-main">
+      {quickTasks.length > 0 && (
+        <section id="quick-tasks" class="quick-tasks" aria-labelledby="quick-tasks-heading">
+          <div class="section-head">
+            <h2 id="quick-tasks-heading">Most requested services</h2>
+            <span class="section-meta">Direct official links</span>
+          </div>
+          <ul class="quick-grid" role="list">
+            {quickTasks.map((item) => (
+              <li>
+                <a href={`/services/${item.slug}/`} class="quick-card">
+                  <span class="quick-title">{item.label}</span>
+                  <span class="quick-host">{item.host}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <div class="section-head directory-head">
+        <h2 id="directory-heading">Verified portals</h2>
+        <span class="section-meta">Popular first, then A–Z</span>
       </div>
-      <ul class="quick-grid" role="list">
-        {quickTasks.map((item) => (
-          <li>
-            <a href={`/services/${item.slug}/`} class="quick-card">
-              <span class="quick-title">{item.label}</span>
-              <span class="quick-host">{item.host}</span>
-            </a>
-          </li>
+
+      <ul id="portal-grid" class="portal-grid" role="list" aria-labelledby="directory-heading">
+        {portals.map((portal) => (
+          <PortalCard portal={portal} />
         ))}
       </ul>
-    </section>
-  )}
 
-  <div class="section-head directory-head">
-    <h2 id="directory-heading">Verified portals</h2>
-    <span class="section-meta">Popular first, then A–Z</span>
-  </div>
+      <div id="list-pagination" class="list-pagination" hidden>
+        <button id="show-all-portals" type="button" class="btn btn-secondary">
+          Show all {portals.length} verified portals
+        </button>
+      </div>
 
-  <ul id="portal-grid" class="portal-grid" role="list" aria-labelledby="directory-heading">
-    {portals.map((portal) => (
-      <PortalCard portal={portal} />
-    ))}
-  </ul>
-
-  <div id="list-pagination" class="list-pagination" hidden>
-    <button id="show-all-portals" type="button" class="btn btn-secondary">
-      Show all {portals.length} verified portals
-    </button>
-  </div>
-
-  <section id="empty-state" class="empty-state" hidden aria-labelledby="empty-heading">
-    <h2 id="empty-heading">No matching portals found</h2>
-    <p>
-      Try a broader word like &ldquo;clearance&rdquo;, &ldquo;passport&rdquo;, or &ldquo;tax&rdquo;,
-      reset your filters, or suggest a missing official portal.
-    </p>
-    <div class="empty-actions">
-      <button id="reset-filters" type="button" class="btn btn-primary">Reset all filters</button>
-      <a href={suggestUrl} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
-        Suggest a portal
-      </a>
+      <section id="empty-state" class="empty-state" hidden aria-labelledby="empty-heading">
+        <h2 id="empty-heading">No matching portals found</h2>
+        <p>
+          Try a broader word like &ldquo;clearance&rdquo;, &ldquo;passport&rdquo;, or &ldquo;tax&rdquo;,
+          reset your filters, or suggest a missing official portal.
+        </p>
+        <div class="empty-actions">
+          <button id="reset-filters" type="button" class="btn btn-primary">Reset all filters</button>
+          <a href={suggestUrl} target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+            Suggest a portal
+          </a>
+        </div>
+      </section>
     </div>
-  </section>
+  </div>
 
   <script
     id="portal-search-index"

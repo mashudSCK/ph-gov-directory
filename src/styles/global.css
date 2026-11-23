@@ -566,6 +566,10 @@ main {
 .chip {
   flex: 0 0 auto;
   scroll-snap-align: start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   min-height: 40px;
   padding: 0 0.75rem;
   border-radius: var(--radius-control);
@@ -580,6 +584,17 @@ main {
   transition-property: background-color, border-color, color, transform;
   transition-duration: 140ms;
   transition-timing-function: ease-out;
+}
+
+.chip-count {
+  display: none;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+.chip[aria-pressed="true"] .chip-count {
+  color: inherit;
+  opacity: 0.85;
 }
 
 .chip:hover {
@@ -1292,6 +1307,79 @@ main {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+  }
+}
+
+@media (min-width: 960px) {
+  :root {
+    --max-w: 72rem;
+  }
+
+  .directory-layout {
+    display: grid;
+    grid-template-columns: 270px minmax(0, 1fr);
+    gap: 1.75rem;
+    align-items: start;
+  }
+
+  .directory-sidebar {
+    position: sticky;
+    top: 68px;
+  }
+
+  .search-panel {
+    margin-bottom: 0;
+    padding: 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+
+  .search-input {
+    font-size: 0.92rem;
+  }
+
+  .coverage-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .segmented {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .segmented button {
+    padding: 0 0.4rem;
+    font-size: 0.78rem;
+  }
+
+  .category-rail {
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    padding-block: 0;
+  }
+
+  .chip {
+    width: 100%;
+    min-height: 36px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.83rem;
+  }
+
+  .chip-count {
+    display: inline;
+  }
+
+  .directory-main {
+    min-width: 0;
+  }
+
+  .detail-card,
+  .back-link {
+    max-width: 54rem;
   }
 }
 
